@@ -10,28 +10,29 @@ public class ClientThread extends Thread{
 
     final static String HOST = "127.0.0.1";
     String pseudo;
-    final static int PORT = 3000;
+    int PORT = 3000;
 
-    private void setPseudo(){
-        Scanner s = new Scanner(System.in);
-        pseudo = s.nextLine();
+    public ClientThread(String pseudo,int PORT){
+        this.pseudo = pseudo;
+        this.PORT = PORT;
     }
+
 
     @Override
     public void run(){
-        setPseudo();
         try {
             Socket server = new Socket(HOST,PORT);
             HelperMethods.log("Connected to server");
             ObjectOutputStream out = new ObjectOutputStream(server.getOutputStream());
+            Main.setOutputStream(out);
             ObjectInputStream in = new ObjectInputStream(server.getInputStream());
             HelperMethods.log("Created streams");
             Thread inT = new InputThread(in);
-            Thread outT = new OutputThread(out,pseudo);
+            //Thread outT = new OutputThread(out,pseudo);
             inT.start();
-            outT.start();
+            //outT.start();
             inT.join();
-            outT.join();
+            //outT.join();
         } catch (IOException e) {
         } catch (InterruptedException e) {
         }

@@ -4,10 +4,10 @@ import javax.swing.*;
 
 public class HelperMethods {
 
-    static JTextArea area = null;
+    static JTextPane area = null;
     static int currLine = 0;
 
-    public static void setField(JTextArea area){
+    public static void setField(JTextPane area){
         HelperMethods.area = area;
     }
 

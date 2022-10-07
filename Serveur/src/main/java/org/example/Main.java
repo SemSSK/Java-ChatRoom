@@ -37,7 +37,7 @@ public class Main extends JFrame {
         startButton.addActionListener(e -> new Thread(()->startServer()).start());
         menu.add(startButton);
 
-        JTextArea serverLogs = new JTextArea();
+        JTextPane serverLogs = new JTextPane();
         panel.add(serverLogs,BorderLayout.CENTER);
 
         HelperMethods.setField(serverLogs);
