@@ -1,19 +1,63 @@
 package org.example;
 
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.ServerSocket;
-import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 
-public class Main {
-    final static int PORT = 3000;
-    public static void main(String[] args) {
+public class Main extends JFrame {
+    static int PORT = 3000;
+
+    public Main(){
+        super("Chat Server");
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setSize(640,480);
+        this.setLocationRelativeTo(null);
+        JPanel panel = (JPanel) this.getContentPane();
+
+        JPanel menu = new JPanel();
+        menu.setLayout(new FlowLayout());
+        panel.add(menu,BorderLayout.NORTH);
+
+        menu.add(new JLabel("Port"),BorderLayout.NORTH);
+
+        //Port Field
+        JTextField portField = new JTextField(Integer.toString(PORT));
+        portField.setColumns(20);
+        portField.addActionListener(e -> PORT = Integer.parseInt(portField.getText()));
+        menu.add(portField);
+
+        //Start Button
+        JButton startButton = new JButton("Start");
+        startButton.addActionListener(e -> new Thread(()->startServer()).start());
+        menu.add(startButton);
+
+        JTextArea serverLogs = new JTextArea();
+        panel.add(serverLogs,BorderLayout.CENTER);
+
+        HelperMethods.setField(serverLogs);
+    }
+
+    public static void main(String[] args) throws UnsupportedLookAndFeelException {
+        //Apply look and feel
+        UIManager.setLookAndFeel(new NimbusLookAndFeel());
+
+        Main main = new Main();
+        main.setVisible(true);
+
+
+    }
+
+    void startServer(){
         try {
-            log("Starting server");
+            HelperMethods.log("Starting server");
             ServerSocket server = new ServerSocket(PORT);
-            log("Server started on port : 3000");
-
+            HelperMethods.log("Server started on port : " + PORT);
             while(true){
                 ServerThread client = new ServerThread(server.accept());
                 client.start();
@@ -23,12 +67,6 @@ public class Main {
         }
     }
 
-    static void log(String s){
-        System.out.println(s);
-    }
 
-    static String inputStreamConverter(InputStream stream) throws IOException {
-        return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
-    }
 
 }
