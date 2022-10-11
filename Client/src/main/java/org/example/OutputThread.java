@@ -20,7 +20,7 @@ class OutputThread extends Thread{
             Scanner s = new Scanner(System.in);
             String message = s.nextLine();
             try {
-                out.writeObject(pseudo + ":" + message);
+                out.writeObject(new Message(0,pseudo,message));
             } catch (IOException e) {
             }
         }

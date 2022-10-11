@@ -9,32 +9,43 @@ public class IOThread extends Thread{
 
     private ObjectInputStream in;
     private List<ObjectOutputStream> outs;
+    private List<Message> messages;
 
-    public IOThread(ObjectInputStream in,List<ObjectOutputStream> outs){
+    public IOThread(ObjectInputStream in,List<ObjectOutputStream> outs,List<Message> messages){
         this.in = in;
         this.outs = outs;
+        this.messages = messages;
     }
 
-    private synchronized void sendOutputs(String m){
+    private void onMessage(Object object){
+        MessageHandler messageHandler = new MessageHandler((Message) object);
+        switch (messageHandler.getType()){
+            case TextMessage -> {
+                messages.add(messageHandler.getMessage());
+                sendOutputs(object);
+                HelperMethods.log(messageHandler.getMessage().getPseudo() + ":" + messageHandler.getMessage().getContent());
+            }
+        }
+    }
+
+
+    private synchronized void sendOutputs(Object o){
         outs.forEach(out-> {
             try {
-                out.writeObject(m);
+                out.writeObject(o);
             } catch (IOException e) {}
         });
     }
 
     @Override
     public void run(){
-        while(true) {
-            String received = null;
+        boolean connected = true;
+        while(connected)
             try {
-                received = (String) in.readObject();
-                HelperMethods.log(received);
-                sendOutputs(received);
+                onMessage(in.readObject());
             } catch (IOException e) {
+                connected = false;
             } catch (ClassNotFoundException e) {
             }
         }
-    }
-
 }
