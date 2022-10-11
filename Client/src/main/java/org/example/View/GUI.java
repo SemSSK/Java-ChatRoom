@@ -3,6 +3,7 @@ package org.example.View;
 import imgui.ImGui;
 import imgui.ImGuiIO;
 import imgui.ImGuiStyle;
+import imgui.ImGuiViewport;
 import imgui.app.Application;
 import imgui.app.Configuration;
 import imgui.flag.*;
@@ -86,9 +87,10 @@ public class GUI extends Application {
     }
 
     private void setupDockSpace(){
+        ImGuiViewport viewport = ImGui.getMainViewport();
         int windowFlags = ImGuiWindowFlags.NoDocking;
         ImGui.setNextWindowPos(0.0f,0.0f, ImGuiCond.Always);
-        ImGui.setNextWindowSize(config.getWidth(),config.getHeight());
+        ImGui.setNextWindowSize(viewport.getSizeX(),viewport.getSizeY());
         ImGui.pushStyleVar(ImGuiStyleVar.WindowRounding,0.0f);
         ImGui.pushStyleVar(ImGuiStyleVar.WindowBorderSize,0.0f);
         windowFlags |= ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse |
@@ -169,6 +171,12 @@ public class GUI extends Application {
     }
     public void start(){
         launch(this);
+    }
+
+    @Override
+    public void dispose(){
+        super.dispose();
+        System.exit(0);
     }
 
 }

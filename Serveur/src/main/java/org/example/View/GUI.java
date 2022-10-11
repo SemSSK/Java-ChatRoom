@@ -16,7 +16,6 @@ import java.util.Map;
 public class GUI extends Application {
 
     private ImInt port;
-    private Configuration config;
     private GuiState state;
     private List<Message> messages;
     private Map<Integer,String> connectedClients;
@@ -34,10 +33,9 @@ public class GUI extends Application {
 
     @Override
     protected void configure(Configuration config){
-        this.config = config;
-        this.config.setTitle("Server");
-        this.config.setHeight(480);
-        this.config.setWidth(640);
+        config.setTitle("Server");
+        config.setHeight(480);
+        config.setWidth(640);
     }
 
     @Override
@@ -72,9 +70,10 @@ public class GUI extends Application {
     }
 
     private void setupDockSpace(){
+        ImGuiViewport viewport = ImGui.getMainViewport();
         int windowFlags = ImGuiWindowFlags.NoDocking;
         ImGui.setNextWindowPos(0.0f,0.0f, ImGuiCond.Always);
-        ImGui.setNextWindowSize(config.getWidth(),config.getHeight());
+        ImGui.setNextWindowSize(viewport.getSizeX(),viewport.getSizeY());
         ImGui.pushStyleVar(ImGuiStyleVar.WindowRounding,0.0f);
         ImGui.pushStyleVar(ImGuiStyleVar.WindowBorderSize,0.0f);
         windowFlags |= ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoCollapse |
@@ -147,4 +146,9 @@ public class GUI extends Application {
         launch(this);
     }
 
+    @Override
+    public void dispose(){
+        super.dispose();
+        System.exit(0);
+    }
 }
