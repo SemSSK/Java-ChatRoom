@@ -9,6 +9,7 @@ import imgui.flag.*;
 import imgui.type.ImBoolean;
 import imgui.type.ImInt;
 import imgui.type.ImString;
+import org.example.AppState;
 import org.example.Main;
 import org.example.Message;
 
@@ -21,22 +22,21 @@ public class GUI extends Application {
     private ImString host;
     private ImString pseudo;
     private Configuration config;
-    private GuiState state;
+    private AppState appState;
     private List<Message> messages;
     private List<String> clientsList;
     private ImString currentMessage = new ImString();
-    private ImBoolean darkmode = new ImBoolean(false);
 
-    public GUI(ImInt port, ImString host, ImString pseudo, List<Message> messages,List<String> clientsList){
+    public GUI(ImInt port, ImString host, ImString pseudo, List<Message> messages,List<String> clientsList,AppState appState){
         ImGui.createContext();
         ImGuiIO io = ImGui.getIO();
         io.setConfigFlags(ImGuiConfigFlags.DockingEnable);
         this.port = port;
         this.host = host;
         this.pseudo = pseudo;
-        this.state = GuiState.Default;
         this.messages = messages;
         this.clientsList = clientsList;
+        this.appState = appState;
         setupStyle();
     }
 
@@ -50,28 +50,21 @@ public class GUI extends Application {
 
     @Override
     public void process() {
-        /*if(darkmode.get()){
-            ImGui.styleColorsDark();
-        }
-        else{
-            ImGui.styleColorsLight();
-        }*/
         setupDockSpace();
-      /*ImGui.begin("Color mode picker");
-            ImGui.checkbox("dark mode",darkmode);
-        ImGui.end();*/
-        if(state == GuiState.Default){
+        if(appState.getState() != GuiState.Started){
             ImGui.begin("Join chat");
+                if(appState.getState() == GuiState.Failed){
+                    ImGui.textColored(1.0f,0.0f,0.0f,1.0f,"Server " + host + ":" + port + " closed");
+                }
                 ImGui.inputText("@IP",host);
                 ImGui.inputInt("port",port);
                 ImGui.inputText("pseudo",pseudo);
                 if(ImGui.button("join")){
-                    state = GuiState.Started;
                     Main.enterRoom();
                 }
             ImGui.end();
         }
-        else if(state == GuiState.Started){
+        else if(appState.getState() == GuiState.Started){
 
             ImGui.begin("Chat");
                 messages.forEach(m->message(m));

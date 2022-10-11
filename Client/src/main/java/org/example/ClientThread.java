@@ -46,6 +46,7 @@ public class ClientThread extends Thread{
         } catch (IOException e) {
         } catch (InterruptedException e) {
         }
+        Main.setToFailed();
     }
 
 
