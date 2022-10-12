@@ -4,11 +4,9 @@ import imgui.*;
 import imgui.app.Application;
 import imgui.app.Configuration;
 import imgui.flag.*;
-import imgui.internal.ImGuiWindow;
 import imgui.type.*;
 import org.example.Main;
 import org.example.Message;
-import org.example.ServerThread;
 
 import java.util.List;
 import java.util.Map;

@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 public class ServerThread extends Thread{
 
     private Socket client;
-    final static String message = "Merci pour l'envoi";
     static ArrayList<ObjectOutputStream> outs = new ArrayList<>();
     public Map<Integer,String> connectedClients;
     private List<Message> messages;
