@@ -13,6 +13,7 @@ class InputThread extends Thread{
     private ObjectInputStream in;
     private List<Message> messages;
     private List<String> clients;
+    private boolean running = true;
 
     public InputThread(ObjectInputStream in,List<Message> messages,List<String> clients){
         this.in = in;
@@ -39,10 +40,11 @@ class InputThread extends Thread{
 
     @Override
     public void run(){
-        while(true) {
+        while(running) {
             try {
                  onMessage(in.readObject());
             } catch (IOException e) {
+                running = false;
             } catch (ClassNotFoundException e) {
             }
         }

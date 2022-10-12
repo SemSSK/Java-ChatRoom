@@ -27,11 +27,11 @@ public class GUI extends Application {
     private List<Message> messages;
     private List<String> clientsList;
     private ImString currentMessage = new ImString();
-
+    private ImGuiIO io;
     public GUI(ImInt port, ImString host, ImString pseudo, List<Message> messages,List<String> clientsList,AppState appState){
         ImGui.createContext();
-        ImGuiIO io = ImGui.getIO();
-        io.setConfigFlags(ImGuiConfigFlags.DockingEnable);
+        io = ImGui.getIO();
+        io.setConfigFlags(ImGuiConfigFlags.DockingEnable | ImGuiConfigFlags.NavEnableKeyboard);
         this.port = port;
         this.host = host;
         this.pseudo = pseudo;
@@ -40,6 +40,7 @@ public class GUI extends Application {
         this.appState = appState;
         setupStyle();
     }
+
 
     @Override
     protected void configure(Configuration config){
@@ -60,6 +61,7 @@ public class GUI extends Application {
                 ImGui.inputText("@IP",host);
                 ImGui.inputInt("port",port);
                 ImGui.inputText("pseudo",pseudo);
+                ImGui.setCursorPosX(ImGui.getWindowWidth() * 0.9f);
                 if(ImGui.button("join")){
                     Main.enterRoom();
                 }
@@ -73,9 +75,10 @@ public class GUI extends Application {
 
             ImGui.begin("sender");
                 ImGui.inputText("message",currentMessage);
-                if(ImGui.button("Send")){
+                ImGui.sameLine();
+                if( ImGui.button("Send")) {
                     try {
-                        Main.sendMessage(new Message(0,pseudo.get(),currentMessage.get()));
+                        Main.sendMessage(new Message(0, pseudo.get(), currentMessage.get()));
                         currentMessage.clear();
                     } catch (IOException e) {
                     }
@@ -122,7 +125,7 @@ public class GUI extends Application {
         //Colors
         style.setColor(ImGuiCol.Text,0.80f, 0.80f, 0.83f, 1.00f);
         style.setColor(ImGuiCol.TextDisabled,0.24f, 0.23f, 0.29f, 1.00f);
-        style.setColor(ImGuiCol.WindowBg,0.06f, 0.05f, 0.07f, 1.00f);
+        style.setColor(ImGuiCol.WindowBg,0.16f, 0.15f, 0.17f, 1.00f);
         style.setColor(ImGuiCol.ChildBg,0.07f, 0.07f, 0.09f, 1.00f);
         style.setColor(ImGuiCol.PopupBg,0.07f, 0.07f, 0.09f, 1.00f);
         style.setColor(ImGuiCol.Border,0.80f, 0.80f, 0.83f, 0.88f);
