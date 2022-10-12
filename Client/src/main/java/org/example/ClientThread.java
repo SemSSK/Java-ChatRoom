@@ -1,52 +1,37 @@
 package org.example;
 
-import imgui.type.ImInt;
-import imgui.type.ImString;
+import org.example.View.GuiState;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.List;
-import java.util.Scanner;
 
 public class ClientThread extends Thread{
+    private AppState appState;
+    private ConnexionData clientInfo;
 
-    ImString HOST;
-    ImString pseudo;
-    ImInt PORT;
-    List<Message> messages;
-    List<String> clients;
-
-    public ClientThread(ImString pseudo,ImString HOST ,ImInt PORT,List<Message> messages,List<String> clients){
-        this.pseudo = pseudo;
-        this.HOST = HOST;
-        this.PORT = PORT;
-        this.messages = messages;
-        this.clients = clients;
+    public ClientThread(AppState appState, ConnexionData clientInfo){
+        this.appState = appState;
+        this.clientInfo = clientInfo;
     }
 
 
     @Override
     public void run(){
         try {
-            Socket server = new Socket(HOST.get(),PORT.get());
+            Socket server = new Socket(appState.getIp().get(),appState.getPort().get());
+            appState.setState(GuiState.Started);
+            clientInfo.load(server);
+            clientInfo.sendMessage(new Message(0, appState.getPseudo().get(),""));
             HelperMethods.log("Connected to server");
-            ObjectOutputStream out = new ObjectOutputStream(server.getOutputStream());
-            out.writeObject(new Message(0, pseudo.get(), ""));
-            Main.setOutputStream(out);
             ObjectInputStream in = new ObjectInputStream(server.getInputStream());
-            HelperMethods.log("Created streams");
-            Thread inT = new InputThread(in,messages,clients);
-            //Thread outT = new OutputThread(out,pseudo);
+            Thread inT = new InputThread(in,clientInfo);
             inT.start();
-            //outT.start();
             inT.join();
-            //outT.join();
         } catch (IOException e) {
         } catch (InterruptedException e) {
         }
-        Main.setToFailed();
+        appState.setState(GuiState.Failed);
     }
 
 

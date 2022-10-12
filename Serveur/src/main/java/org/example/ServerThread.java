@@ -32,13 +32,13 @@ public class ServerThread extends Thread{
     private void registerClient(int id,String pseudo){
         connectedClients.put(id,pseudo);
     }
+
     private void sendClientsList(){
         List<String> clients = connectedClients.entrySet().stream().map(entry -> entry.getValue()).collect(Collectors.toList());
         outs.forEach(out -> {
             try {
                 out.writeObject(new Message(0,null,clients));
             } catch (IOException e) {
-                e.printStackTrace();
             }
         });
     }

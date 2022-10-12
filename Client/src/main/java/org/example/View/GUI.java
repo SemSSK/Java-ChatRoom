@@ -8,35 +8,26 @@ import imgui.app.Application;
 import imgui.app.Configuration;
 import imgui.flag.*;
 import imgui.type.ImBoolean;
-import imgui.type.ImInt;
 import imgui.type.ImString;
 import org.example.AppState;
+import org.example.ConnexionData;
 import org.example.Main;
 import org.example.Message;
 
 import java.io.IOException;
-import java.util.List;
 
 public class GUI extends Application {
 
-    private ImInt port;
-    private ImString host;
-    private ImString pseudo;
-    private Configuration config;
     private AppState appState;
-    private List<Message> messages;
-    private List<String> clientsList;
+    private ConnexionData clientInfo;
     private ImString currentMessage = new ImString();
     private ImGuiIO io;
-    public GUI(ImInt port, ImString host, ImString pseudo, List<Message> messages,List<String> clientsList,AppState appState){
+
+    public GUI(AppState appState, ConnexionData clientInfo){
         ImGui.createContext();
         io = ImGui.getIO();
-        io.setConfigFlags(ImGuiConfigFlags.DockingEnable | ImGuiConfigFlags.NavEnableKeyboard);
-        this.port = port;
-        this.host = host;
-        this.pseudo = pseudo;
-        this.messages = messages;
-        this.clientsList = clientsList;
+        io.setConfigFlags(ImGuiConfigFlags.DockingEnable);
+        this.clientInfo = clientInfo;
         this.appState = appState;
         setupStyle();
     }
@@ -44,10 +35,9 @@ public class GUI extends Application {
 
     @Override
     protected void configure(Configuration config){
-        this.config = config;
-        this.config.setTitle("Client");
-        this.config.setHeight(600);
-        this.config.setWidth(800);
+        config.setTitle("Client");
+        config.setHeight(600);
+        config.setWidth(800);
     }
 
     @Override
@@ -56,11 +46,12 @@ public class GUI extends Application {
         if(appState.getState() != GuiState.Started){
             ImGui.begin("Join chat");
                 if(appState.getState() == GuiState.Failed){
-                    ImGui.textColored(1.0f,0.0f,0.0f,1.0f,"Server " + host + ":" + port + " closed");
+                    ImGui.textColored(1.0f,0.0f,0.0f,1.0f,
+                            "Server " + appState.getIp() + ":" + appState.getPort() + " closed");
                 }
-                ImGui.inputText("@IP",host);
-                ImGui.inputInt("port",port);
-                ImGui.inputText("pseudo",pseudo);
+                ImGui.inputText("@IP",appState.getIp());
+                ImGui.inputInt("port",appState.getPort());
+                ImGui.inputText("pseudo",appState.getPseudo());
                 ImGui.setCursorPosX(ImGui.getWindowWidth() * 0.9f);
                 if(ImGui.button("join")){
                     Main.enterRoom();
@@ -70,15 +61,15 @@ public class GUI extends Application {
         else if(appState.getState() == GuiState.Started){
 
             ImGui.begin("Chat");
-                messages.forEach(m->message(m));
+                clientInfo.getMessages().forEach(m->message(m));
             ImGui.end();
 
             ImGui.begin("sender");
-                ImGui.inputText("message",currentMessage);
+                ImGui.inputText(" ",currentMessage);
                 ImGui.sameLine();
                 if( ImGui.button("Send")) {
                     try {
-                        Main.sendMessage(new Message(0, pseudo.get(), currentMessage.get()));
+                        clientInfo.sendMessage(new Message(0, appState.getPseudo().get(), currentMessage.get()));
                         currentMessage.clear();
                     } catch (IOException e) {
                     }
@@ -125,7 +116,7 @@ public class GUI extends Application {
         //Colors
         style.setColor(ImGuiCol.Text,0.80f, 0.80f, 0.83f, 1.00f);
         style.setColor(ImGuiCol.TextDisabled,0.24f, 0.23f, 0.29f, 1.00f);
-        style.setColor(ImGuiCol.WindowBg,0.16f, 0.15f, 0.17f, 1.00f);
+        style.setColor(ImGuiCol.WindowBg,0.06f, 0.05f, 0.07f, 1.00f);
         style.setColor(ImGuiCol.ChildBg,0.07f, 0.07f, 0.09f, 1.00f);
         style.setColor(ImGuiCol.PopupBg,0.07f, 0.07f, 0.09f, 1.00f);
         style.setColor(ImGuiCol.Border,0.80f, 0.80f, 0.83f, 0.88f);
@@ -167,14 +158,12 @@ public class GUI extends Application {
 
     private void displayClientsList(){
         ImGui.begin("Chat members");
-            clientsList.forEach(name -> {
+            clientInfo.getChatMembers().forEach(name -> {
                 ImGui.text(name);
             });
         ImGui.end();
     }
-    public void start(){
-        launch(this);
-    }
+
 
     @Override
     public void dispose(){
